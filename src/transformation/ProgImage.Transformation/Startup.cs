@@ -1,3 +1,4 @@
+using System;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using ProgImage.Transformation.Helpers;
 using ProgImage.Transformation.RabbitMQ.Connection;
 using ProgImage.Transformation.RabbitMQ.Services;
 using ProgImage.Transformation.Services;
+using Serilog;
 
 namespace ProgImage.Transformation
 {
@@ -77,6 +79,16 @@ namespace ProgImage.Transformation
             using IServiceScope serviceScope = 
                 app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
             AppDbContext context = serviceScope.ServiceProvider.GetService<AppDbContext>();
+            
+            try
+            {
+                context.Database.Migrate();
+            }
+            catch (Exception)
+            {
+                Log.Information("[Database] No migrations to run.");
+            }
+
         }
     }
 }

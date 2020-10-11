@@ -12,6 +12,7 @@ using ProgImage.Storage.Domain.Repositories;
 using ProgImage.Storage.Domain.Services;
 using ProgImage.Storage.Helpers;
 using ProgImage.Storage.Services;
+using Serilog;
 
 namespace ProgImage.Storage
 {
@@ -63,6 +64,15 @@ namespace ProgImage.Storage
             using IServiceScope serviceScope =
                 app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
             AppDbContext context = serviceScope.ServiceProvider.GetService<AppDbContext>();
+            
+            try
+            {
+                context.Database.Migrate();
+            }
+            catch (Exception)
+            {
+                Log.Information("[Database] No migrations to run.");
+            }
         }
     }
 }
