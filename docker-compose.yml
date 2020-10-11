@@ -1,0 +1,264 @@
+﻿version: "3.8"
+
+networks:
+  default:
+  progimage:
+    external: true
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    image: rabbitmq:3.7.7-management
+    networks:
+      - progimage
+
+  postgres-storage:
+    container_name: postgres-storage
+    hostname: postgres-storage
+    restart: always
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=progimage_storage
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    networks:
+      - progimage
+
+  postgres-transformation:
+    container_name: postgres-transformation
+    hostname: postgres-transformation
+    restart: always
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_DB=progimage_transformation
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    networks:
+      - progimage
+
+  progimage-api-gateway:
+    container_name: progimage-api-gateway
+    hostname: gateway
+    restart: always
+    build:
+      context: .
+      dockerfile: ./src/api-gateway/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - WEBSERVER_PORT=80
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  progimage-transformation:
+    container_name: progimage-transformation
+    hostname: transformation
+    restart: always
+    depends_on:
+      - rabbitmq
+      - postgres-transformation
+    build:
+      context: .
+      dockerfile: ./src/transformation/Dockerfile
+    ports:
+      - 5000:5000
+      - 5001:5001
+    environment:
+      - DATABASE_HOSTNAME=postgres-transformation
+      - DATBASE_PORT=5433
+      - DATABASE_NAME=progimage_transformation
+      - DATABASE_USERNAME=user
+      - DATABASE_PASSWORD=password
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_TYPE=topic
+      - RABBITMQ_CONSUMER_BINDING_KEY=progimage.transformation.api
+      - RABBITMQ_PRODUCER_BINDING_KEY=progimage.transformation.blur
+      - WEBSERVER_PORT=5000
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  progimage-thumbnail:
+    container_name: progimage-thumbnail
+    hostname: thumbnail
+    restart: always
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./src/thumbnail/Dockerfile
+    ports:
+      - 5002:5002
+      - 5003:5002
+    environment:
+      - DATABASE_PASSWORD=password
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=progimage-thumbnail
+      - RABBITMQ_EXCHANGE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_TYPE=topic
+      - RABBITMQ_CONSUMER_BINDING_KEY=progimage.transformation.thumbnail
+      - RABBITMQ_PRODUCER_BINDING_KEY=progimage.transformation.api
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+
+  progimage-rotate:
+    container_name: progimage-rotate
+    hostname: rotate
+    restart: always
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./src/rotate/Dockerfile
+    ports:
+      - 5006:5006
+      - 5007:5007
+    environment:
+      - DATABASE_PASSWORD=password
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=progimage-rotate
+      - RABBITMQ_EXCHANGE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_TYPE=topic
+      - RABBITMQ_CONSUMER_BINDING_KEY=progimage.transformation.rotate
+      - RABBITMQ_PRODUCER_BINDING_KEY=progimage.transformation.api
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  progimage-mask:
+    container_name: progimage-mask
+    hostname: mask
+    restart: always
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./src/mask/Dockerfile
+    ports:
+      - 5008:5008
+      - 5009:5009
+    environment:
+      - DATABASE_PASSWORD=password
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=progimage-mask
+      - RABBITMQ_EXCHANGE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_TYPE=topic
+      - RABBITMQ_CONSUMER_BINDING_KEY=progimage.transformation.mask
+      - RABBITMQ_PRODUCER_BINDING_KEY=progimage.transformation.api
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  progimage-compress:
+    container_name: progimage-compress
+    hostname: compress
+    restart: always
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./src/compress/Dockerfile
+    ports:
+      - 5010:5010
+      - 5011:5011
+    environment:
+      - DATABASE_PASSWORD=password
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=progimage-compress
+      - RABBITMQ_EXCHANGE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_TYPE=topic
+      - RABBITMQ_CONSUMER_BINDING_KEY=progimage.transformation.compress
+      - RABBITMQ_PRODUCER_BINDING_KEY=progimage.transformation.api
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  progimage-blur:
+    container_name: progimage-blur
+    hostname: blur
+    restart: always
+    depends_on:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./src/blur/Dockerfile
+    ports:
+      - 5012:5012
+      - 5013:5013
+    environment:
+      - DATABASE_PASSWORD=password
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NAME=progimage-blur
+      - RABBITMQ_EXCHANGE_NAME=progimage-transformation
+      - RABBITMQ_EXCHANGE_TYPE=topic
+      - RABBITMQ_CONSUMER_BINDING_KEY=progimage.transformation.blur
+      - RABBITMQ_PRODUCER_BINDING_KEY=progimage.transformation.api
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+  progimage-storage:
+    container_name: progimage-storage
+    hostname: storage
+    restart: always
+    depends_on:
+      - postgres-storage
+    build:
+      context: .
+      dockerfile: ./src/storage/Dockerfile
+    ports:
+      - 8080:8080
+      - 8081:8081
+    environment:
+      - DATABASE_HOSTNAME=postgres-storage
+      - DATABASE_NAME=progimage_storage
+      - DATABASE_USERNAME=user
+      - DATABASE_PASSWORD=password
+      - WEBSERVER_PORT=8080
+    networks:
+      - progimage
+    volumes:
+      - ~/.aspnet/https:/https:ro

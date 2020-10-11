@@ -1,0 +1,65 @@
+﻿{
+    "Routes": [
+        {
+            "DownstreamPathTemplate": "/api/v1/progimage/storage/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "progimage-storage",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/api/v1/progimage/storage/{everything}",
+            "UpstreamHttpMethod": ["POST", "GET"]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/progimage/storage",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "progimage-storage",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/api/v1/progimage/storage",
+            "UpstreamHttpMethod": ["POST", "GET"]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/progimage/storage",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "progimage-storage",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/api/v1/progimage/storage/",
+            "UpstreamHttpMethod": ["POST", "GET"]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/progimage/transformation/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "progimage-transformation",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/api/v1/progimage/transformation/{everything}",
+            "UpstreamHttpMethod": ["POST", "GET"]
+        },
+        {
+            "DownstreamPathTemplate": "/api/v1/progimage/transformation/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "progimage-transformation",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/api/v1/progimage/transformation/{everything}/",
+            "UpstreamHttpMethod": ["POST", "GET"]
+        }
+    ],
+    "GlobalConfiguration": {}
+}

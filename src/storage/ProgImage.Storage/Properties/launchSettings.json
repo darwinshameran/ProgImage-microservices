@@ -1,0 +1,25 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:64929",
+      "sslPort": 44398
+    }
+  },
+  "profiles": {
+    "ProgImage": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DATABASE_HOSTNAME": "localhost",
+        "DATABASE_NAME": "progimage_storage",
+        "DATABASE_USERNAME": "postgres",
+        "DATABASE_PASSWORD": "postgres",
+        "WEBSERVER_PORT": "8080"
+      }
+    }
+  }
+}

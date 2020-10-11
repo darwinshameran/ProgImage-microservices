@@ -1,0 +1,30 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:54535",
+      "sslPort": 44382
+    }
+  },
+  "profiles": {
+    "ProgImage.Mask": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:5020;http://localhost:5030",
+      "environmentVariables": {
+        "RABBITMQ_HOSTNAME": "localhost",
+        "RABBITMQ_PORT": "5672",
+        "RABBITMQ_USERNAME": "guest",
+        "RABBITMQ_PASSWORD": "guest",
+        "RABBITMQ_QUEUE_NAME": "progimage-mask",
+        "RABBITMQ_EXCHANGE_NAME": "progimage-transformation",
+        "RABBITMQ_EXCHANGE_TYPE": "topic",
+        "RABBITMQ_CONSUMER_BINDING_KEY": "progimage.transformation.mask",
+        "RABBITMQ_PRODUCER_BINDING_KEY": "progimage.transformation.api",
+        "WEBSERVER_PORT": "5008"
+      }
+    }
+  }
+}
