@@ -86,6 +86,13 @@ namespace Tests.Services
         public async Task Should_Convert_Image_Bmp_To_Png()
         {
             
+            Bitmap bitmap = new Bitmap(80, 20);
+            ImageConverter converter = new ImageConverter();
+            byte[] bytes = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
+            byte[] convertedImage = _utils.ConvertImage(bytes, "png");
+            ImageFormat imageFormat = _utils.GetImageFormat(convertedImage);
+            
+            Assert.Equal("png", imageFormat.ToString());
         }
     }
 }
