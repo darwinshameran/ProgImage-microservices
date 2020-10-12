@@ -25,9 +25,9 @@ namespace ProgImage.Transformation.Controllers
         [Route("{imageId}/[controller]")]
         public async Task<IActionResult> TransformImageByImageId(Guid imageId, [FromQuery] int? width, [FromQuery] int? height)
         {
-            if (!width.HasValue && !height.HasValue)
+            if (!width.HasValue || !height.HasValue)
             {
-                return BadRequest("Error: `width` and `quality` query strings not set.");
+                return BadRequest("Error: `width` and/or `quality` query string not set.");
             }
             
             TransformationStatusResponse response = await _imageTransform.Transform(new TransformationThumbnailStartEvent
@@ -47,9 +47,9 @@ namespace ProgImage.Transformation.Controllers
         [Route("[controller]")]
         public async Task<IActionResult> TransformImageByData(IFormFile image, [FromQuery] int? width, [FromQuery] int? height)
         {
-            if (!width.HasValue && !height.HasValue)
+            if (!width.HasValue || !height.HasValue)
             {
-                return BadRequest("Error: `width` and `quality` query strings not set.");
+                return BadRequest("Error: `width` and/or `quality` query strings not set.");
             }
             
             TransformationStatusResponse response = await _imageTransform.Transform(new TransformationThumbnailStartEvent
@@ -68,9 +68,9 @@ namespace ProgImage.Transformation.Controllers
         [Route("[controller]")]
         public async Task<IActionResult> TransformImageByUrl([FromQuery] string url, [FromQuery] int? width, [FromQuery] int? height)
         {
-            if (!width.HasValue && !height.HasValue)
+            if (!width.HasValue || !height.HasValue)
             {
-                return BadRequest("Error: `width` and `quality` query strings not set.");
+                return BadRequest("Error: `width` and/or `quality` query strings not set.");
             }
             
             TransformationStatusResponse response = await _imageTransform.Transform(new TransformationThumbnailStartEvent

@@ -27,9 +27,9 @@ namespace ProgImage.Transformation.Controllers
         [Route("{imageId}/[controller]")]
         public async Task<IActionResult> TransformImageByImageId(Guid imageId, [FromQuery] double? radius, [FromQuery] double? sigma)
         {
-            if (!radius.HasValue && !sigma.HasValue)
+            if (!radius.HasValue || !sigma.HasValue)
             {
-                return BadRequest("Error: `Radius` and `sigma` query strings not set.");
+                return BadRequest("Error: `Radius` and/or `sigma` query strings not set.");
             }
             
             TransformationStatusResponse response = await _imageTransform.Transform(new TransformationBlurStartEvent
@@ -49,9 +49,9 @@ namespace ProgImage.Transformation.Controllers
         [Route("[controller]")]
         public async Task<IActionResult> TransformImageByData(IFormFile image, [FromQuery] double? radius, [FromQuery] double? sigma)
         {
-            if (!radius.HasValue && !sigma.HasValue)
+            if (!radius.HasValue || !sigma.HasValue)
             {
-                return BadRequest("Error: `Radius` and `sigma` query strings not set.");
+                return BadRequest("Error: `radius` and/or `sigma` query strings not set.");
             }
             
             TransformationStatusResponse response = await _imageTransform.Transform(new TransformationBlurStartEvent
@@ -70,9 +70,9 @@ namespace ProgImage.Transformation.Controllers
         [Route("[controller]")]
         public async Task<IActionResult> TransformImageByUrl([FromQuery] string url, [FromQuery] double? radius, [FromQuery] double? sigma)
         {
-            if (!radius.HasValue && !sigma.HasValue)
+            if (!radius.HasValue || !sigma.HasValue)
             {
-                return BadRequest("Error: `Radius` and `sigma` query strings not set.");
+                return BadRequest("Error: `radius` and/or `sigma` query strings not set.");
             }
             
             if (string.IsNullOrEmpty(url))
