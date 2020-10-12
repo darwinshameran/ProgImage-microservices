@@ -2,9 +2,12 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProgImage.Resize.Events;
 using ProgImage.Transformation.Controllers.DTO.Response;
+using ProgImage.Transformation.Domain.Events;
 using ProgImage.Transformation.Domain.Services;
 using ProgImage.Transformation.Helpers;
+using ProgImage.Transformation.Services;
 
 namespace ProgImage.Transformation.Controllers
 {
@@ -12,11 +15,11 @@ namespace ProgImage.Transformation.Controllers
     [Route("/api/v1/progimage/transformation")]
     public class BlurController : Controller
     {
-        private readonly IBlurService _blurService;
-        
-        public BlurController(IBlurService blurService)
+        private readonly IImageTransform<BaseEvent> _imageTransform;
+
+        public BlurController(IImageTransform<BaseEvent> imageTransform)
         {
-            _blurService = blurService;
+            _imageTransform = imageTransform;
         }
         
         // POST /api/v1/progimage/transformation/{imageId}/blur?radius={radius}&sigma={sigma}
@@ -29,7 +32,13 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `Radius` and `sigma` query strings not set.");
             }
             
-            TransformationStatusResponse response = await _blurService.TransformImage(imageId, (double)radius, (double)sigma);
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationBlurStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Url = $"http://progimage-storage:8080/api/v1/progimage/storage/{imageId}",
+                Radius = (double)radius,
+                Sigma = (double)sigma
+            }, "progimage.transformation.blur");
             
             return Accepted(response);
         }
@@ -45,8 +54,13 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `Radius` and `sigma` query strings not set.");
             }
             
-            TransformationStatusResponse response = await _blurService.TransformImage(image, (double)radius, (double)sigma);
-
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationBlurStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Radius = (double)radius,
+                Sigma = (double)sigma
+            }, "progimage.transformation.blur", image);
+            
             return Accepted(response);
         }
         
@@ -61,8 +75,19 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `Radius` and `sigma` query strings not set.");
             }
             
-            TransformationStatusResponse response = await _blurService.TransformImage(url, (double)radius, (double)sigma);
-
+            if (string.IsNullOrEmpty(url))
+            {
+                return BadRequest("Error: `url` query string not set.");
+            }
+            
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationBlurStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Url = url,
+                Radius = (double)radius,
+                Sigma = (double)sigma
+            }, "progimage.transformation.blur");
+            
             return Accepted(response);
         }
     }

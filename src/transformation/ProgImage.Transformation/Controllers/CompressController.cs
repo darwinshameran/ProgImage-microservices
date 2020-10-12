@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProgImage.Resize.Events;
 using ProgImage.Transformation.Controllers.DTO.Response;
+using ProgImage.Transformation.Domain.Events;
 using ProgImage.Transformation.Domain.Services;
 using ProgImage.Transformation.Helpers;
 
@@ -12,11 +14,11 @@ namespace ProgImage.Transformation.Controllers
     [Route("/api/v1/progimage/transformation")]
     public class CompressController : Controller
     {
-        private readonly ICompressService _compressService;
-        
-        public CompressController(ICompressService compressService)
+        private readonly IImageTransform<BaseEvent> _imageTransform;
+
+        public CompressController(IImageTransform<BaseEvent> imageTransform)
         {
-            _compressService = compressService;
+            _imageTransform = imageTransform;
         }
         
         // POST /api/v1/progimage/transformation/{imageId}/compress?quality={quality}
@@ -29,7 +31,12 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `quality` query string not set.");
             }
             
-            TransformationStatusResponse response = await _compressService.TransformImage(imageId, (int)quality);
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationCompressStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Url = $"http://progimage-storage:8080/api/v1/progimage/storage/{imageId}",
+                Quality = (int)quality,
+            }, "progimage.transformation.compress");
             
             return Accepted(response);
         }
@@ -45,8 +52,12 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `quality` query string not set.");
             }
             
-            TransformationStatusResponse response = await _compressService.TransformImage(image, (int)quality);
-
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationCompressStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Quality = (int)quality,
+            }, "progimage.transformation.compress", image);
+            
             return Accepted(response);
         }
         
@@ -61,7 +72,12 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `quality` query string not set.");
             }
             
-            TransformationStatusResponse response = await _compressService.TransformImage(url, (int)quality);
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationCompressStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Url = url,
+                Quality = (int)quality,
+            }, "progimage.transformation.compress");
 
             return Accepted(response);
         }

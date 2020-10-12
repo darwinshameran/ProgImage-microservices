@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ProgImage.Transformation.Domain.Events;
 using ProgImage.Transformation.Domain.Persistence;
 using ProgImage.Transformation.Domain.Persistence.Database;
 using ProgImage.Transformation.Domain.Repositories;
@@ -48,14 +49,9 @@ namespace ProgImage.Transformation
             services.AddControllers();
 
             services.AddScoped<IStatusService, StatusService>();
-            services.AddScoped<IThumbnailService, ThumbnailService>();
-            services.AddScoped<IBlurService, BlurService>();
-            services.AddScoped<ICompressService, CompressService>();
-            services.AddScoped<IRotateService, RotateService>();
-            services.AddScoped<IMaskService, MaskService>();
-
             services.AddScoped<IStatusRepository, StatusRepository>();
-
+            services.AddScoped(typeof(IImageTransform<>), typeof(ImageTransform<>));
+            
             services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
             services.AddSingleton<IConsumer, Consumer>();
             services.AddSingleton<IProducer, Producer>();

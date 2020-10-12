@@ -1,12 +1,11 @@
 ﻿using System;
+using ProgImage.Transformation.Domain.Events;
+
 // ReSharper disable All
 
 namespace ProgImage.Resize.Events
 {
-    public class TransformationMaskStartEvent
+    public class TransformationMaskStartEvent : BaseEvent
     {
-        public Guid StatusId { get; set; }
-        public string Url { get; set; }
-        public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 }

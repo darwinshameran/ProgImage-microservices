@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProgImage.Resize.Events;
 using ProgImage.Transformation.Controllers.DTO.Response;
+using ProgImage.Transformation.Domain.Events;
 using ProgImage.Transformation.Domain.Services;
 using ProgImage.Transformation.Helpers;
 
@@ -12,11 +14,11 @@ namespace ProgImage.Transformation.Controllers
     [Route("/api/v1/progimage/transformation")]
     public class RotateController : Controller
     {
-        private readonly IRotateService _rotateService;
+        private readonly IImageTransform<BaseEvent> _imageTransform;
         
-        public RotateController(IRotateService rotateService)
+        public RotateController(IImageTransform<BaseEvent> imageTransform)
         {
-            _rotateService = rotateService;
+            _imageTransform = imageTransform;
         }
         
         // POST /api/v1/progimage/transformation/{imageId}/rotate?degrees={degrees}
@@ -29,7 +31,12 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `degrees` query string not set.");
             }
             
-            TransformationStatusResponse response = await _rotateService.TransformImage(imageId, (int)degrees);
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationRotateStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Url = $"http://progimage-storage:8080/api/v1/progimage/storage/{imageId}",
+                Degrees = (int)degrees
+            }, "progimage.transformation.rotate");
             
             return Accepted(response);
         }
@@ -45,8 +52,12 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `degrees` query string not set.");
             }
 
-            TransformationStatusResponse response = await _rotateService.TransformImage(image, (int)degrees);
-
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationRotateStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Degrees = (int)degrees
+            }, "progimage.transformation.rotate", image);
+            
             return Accepted(response);
         }
         
@@ -61,7 +72,13 @@ namespace ProgImage.Transformation.Controllers
                 return BadRequest("Error: `degrees` query string not set.");
             }
             
-            TransformationStatusResponse response = await _rotateService.TransformImage(url, (int)degrees);
+            TransformationStatusResponse response = await _imageTransform.Transform(new TransformationRotateStartEvent
+            {
+                StatusId = Guid.NewGuid(),
+                Url = url,
+                Degrees = (int)degrees
+            }, "progimage.transformation.rotate");
+            
 
             return Accepted(response);
         }
