@@ -2,13 +2,6 @@ ProgImage-microservices
 =========
 A set of microservices to store and transform images.
 
-
-Architecture
-----------
-
-![progimage](progimage-arch.png)
-
-
 Built With
 ----------
 * .NET/Core 3.1
